@@ -5,12 +5,36 @@
     <meta charset="utf-8">
     <title>Stacked Bar Chart</title>
     <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
+    <style>
+        .axis {
+            font-size: 13px;
+            text-align: left;
+        }
+
+        .axis line {
+            fill: none;
+            stroke: grey;
+            stroke-width: 1;
+            shape-rendering: crispEdges;
+        }
+
+        .toolcolor {
+            fill: white;
+        }
+
+        .axis path {
+            shape-rendering: crsipEdges;
+        }
+    </style>
+
+
+
 </head>
 
 <body>
 
+    <h2 style="text-align:center">Salt and Sugar Comsumption by Country</h2>
     <script>
-        //var fs = require("fs");
         var margin = {
             top: 20,
 
@@ -87,9 +111,9 @@
                 .orient("left")
                 .ticks(10)
                 .tickPadding(10)
-                .tickSize(-width, 0, 0)
+                .tickSize(-width, 0, 2) // 2 -> width of axis
                 .tickFormat(function(d) {
-                    return (d / 1000 + "K");
+                    return (d + "g");
                 });
 
             var xAxis = d3.svg.axis()
@@ -97,7 +121,7 @@
                 .orient("bottom")
                 .ticks(5)
                 .tickPadding(10)
-                .tickSize(-width, 0, 0);
+                .tickSize(-width, 0, 2);
 
 
 
@@ -109,6 +133,7 @@
                 .attr("class", "x axis")
                 .attr("transform", "translate(0," + height + ")")
                 .call(xAxis);
+
 
             var groups = svg.selectAll("g.cost")
                 .data(dataset)
@@ -144,7 +169,7 @@
                     var xPosition = d3.mouse(this)[0] - 15;
                     var yPosition = d3.mouse(this)[1] - 25;
                     tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
-                    tooltip.select("text").text(d.y);
+                    tooltip.select("text").text((d.y).toFixed(2));
                 });
 
 
@@ -157,28 +182,28 @@
                     return "translate(30," + i * 19 + ")";
                 });
 
-            // legend.append("rect")
-            //     .attr("x", width - 18)
-            //     .attr("width", 18)
-            //     .attr("height", 18)
-            //     .style("fill", function(d, i) {
-            //         return colors.slice().reverse()[i];
-            //     });
-            //
-            // legend.append("text")
-            //     .attr("x", width + 5)
-            //     .attr("y", 9)
-            //     .attr("dy", ".35em")
-            //     .style("text-anchor", "start")
-            //     .text(function(d, i) {
-            //         switch (i) {
-            //             case 0:
-            //                 return "Sugar";
-            //             case 1:
-            //                 return "Salt";
-            //
-            //         }
-            //     });
+            legend.append("rect")
+                .attr("x", width - 18)
+                .attr("width", 18)
+                .attr("height", 18)
+                .style("fill", function(d, i) {
+                    return colors.slice().reverse()[i];
+                });
+
+            legend.append("text")
+                .attr("x", width + 5)
+                .attr("y", 9)
+                .attr("dy", ".35em")
+                .style("text-anchor", "start")
+                .text(function(d, i) {
+                    switch (i) {
+                        case 0:
+                            return "Sugar";
+                        case 1:
+                            return "Salt";
+
+                    }
+                });
 
 
             // Prep the tooltip bits, initial display is hidden
@@ -186,31 +211,24 @@
                 .attr("class", "tooltip")
                 .style("display", "none");
 
-            // tooltip.append("rect")
-            //     .attr("width", 30)
-            //     .attr("height", 20)
-            //     .attr("fill", "white")
-            //     .style("opacity", 0.5);
-            //
-            // tooltip.append("text")
-            //     .attr("x", 15)
-            //     .attr("dy", "1.2em")
-            //     .style("text-anchor", "middle")
-            //     .attr("font-size", "12px")
-            //     .attr("font-weight", "bold");
+            tooltip.append("rect")
+                .attr("width", 40)
+                .attr("height", 20)
+                .attr("fill", "black")
+                .style("opacity", 0.7);
+
+            tooltip.append("text")
+                .attr("x", 15)
+                .attr("dy", "1.2em")
+                .style("text-anchor", "middle")
+                .attr("class", "toolcolor")
+                .attr("font-size", "12px")
+                .attr("font-weight", "bold");
 
         }); //d3 jsonends here
     </script>
 
-    <svg>
-
-    </svg>
 </body>
 
 </html>
-ml>
-</svg>
-</body>
-
-</html>
-ml>
+l>

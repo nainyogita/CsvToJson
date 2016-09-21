@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Multi Line Series Chart</title>
+    <script type="text/javascript" src="http://d3js.org/d3.v3.min.js"></script>
+    <style>
+        .axis--x path {
+            display: none;
+        }
+
+        .line {
+            fill: none;
+            stroke: steelblue;
+            stroke-width: 1.5px;
+        }
+    </style>
+
+
+
+</head>
+
+<body>
+
+    <h2 style="text-align:center">Proteins,Carbs and Fat by Zones</h2>
+    <script>
+        var margin = {
+                top: 20,
+                right: 160,
+                bottom: 35,
+                left: 80
+            },
+            width = 960 - margin.left - margin.right,
+            height = 500 - margin.top - margin.bottom;
+
+
+
+
+        var newData = [];
+        var colors = ["#d25c4d", "#f2b447", ];
+
+        d3.json("result2.json", function(error, data) {
+
+            var keys = Object.keys(data);
+
+            keys.forEach(function(zone) {
+                //console.log(zone);
+                var newObj = {};
+                var info = data[zone];
+
+                var pKeys = Object.keys(info);
+                pKeys.forEach(function(pro) {
+
+
+                    var newP = {};
+
+                    newP["zone"] = zone;
+                    newP["product"] = pro;
+                    newP["amount"] = info[pro];
+
+                    newData.push(newP);
+
+                });
+            });
+            console.log(newData);
+            redraw();
+        });
+
+        function redraw() {
+
+            var colors = ["#d25c4d", "#f2b447", "#32CD32"];
+
+            var color = d3.scale.ordinal().range(colors);
+            console.log(newData);
+
+            var x = d3.scale.ordinal()
+                .domain(newData.map(function(d) {
+                    return d.zone;
+                })).rangePoints([0, width]);
+
+
+            var y = d3.scale.linear().range([height, 0]);
+            y.domain([d3.min(newData, function(d) {
+                return d.amount - 1;
+            }), d3.max(newData, function(d) {
+                return d.amount + 1;
+            })]);
+
+
+            var priceline = d3.svg.line()
+                .x(function(d) {
+                    return x(d.zone);
+                })
+                .y(function(d) {
+                    return y(d.amount);
+                });
+
+            var svg = d3.select("body")
+                .append("svg")
+                .attr("width", width + margin.left + margin.right)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform",
+                    "translate(" + margin.left + "," + margin.top + ")");
+
+            // Define the axes
+            var xAxis = d3.svg.axis().scale(x)
+                .orient("bottom")
+                .ticks(5)
+                .tickPadding(10)
+                .tickSize(-width, 0, 2);
+
+
+            var yAxis = d3.svg.axis().scale(y)
+                .orient("left")
+                .ticks(10)
+                .tickPadding(10)
+                .tickSize(-width, 0, 2);
+
+            // Nest the entries by symbol
+            var dataNest = d3.nest()
+                .key(function(d) {
+                    return d.product;
+                })
+                .entries(newData);
+
+
+            // Loop through each symbol / key
+            dataNest.forEach(function(d) {
+                svg.append("path")
+                    .attr("class", "line")
+                    .style("stroke", function() {
+                        return d.color = color(d.key);
+                    })
+                    .attr("d", priceline(d.values));
+
+            });
+
+            // Add the X Axis
+            svg.append("g")
+                .attr("class", "x axis")
+                .attr("transform", "translate(0," + height + ")")
+                .call(xAxis);
+
+            // Add the Y Axis
+            svg.append("g")
+                .attr("class", "y axis")
+                .call(yAxis);
+
+            svg.append("text") // text label for the x axis
+                .attr("x", 400)
+                .attr("y", 480)
+                .style("text-anchor", "middle")
+
+            .style("stroke", "blue")
+                .text("Regions --");
+
+            svg.append("text") // text label for the y axis
+                .attr("x", 400)
+                .attr("y", 460)
+                .style("text-anchor", "middle")
+                .attr("transform", "rotate(-90)")
+                .style("stroke", "blue")
+                .text(" Average Consumption --");
+
+
+            var legend = svg.selectAll(".legend")
+                .data(colors)
+                .enter().append("g")
+                .attr("class", "legend")
+                .attr("transform", function(d, i) {
+                    return "translate(30," + i * 19 + ")";
+                });
+
+            legend.append("rect")
+                .attr("x", width - 18)
+                .attr("width", 18)
+                .attr("height", 18)
+                .style("fill", function(d, i) {
+                    return colors.slice().reverse()[i];
+                });
+
+            legend.append("text")
+                .attr("x", width + 5)
+                .attr("y", 9)
+                .attr("dy", ".35em")
+                .style("text-anchor", "start")
+                .text(function(d, i) {
+                    switch (i) {
+                        case 0:
+                            return "Sugar";
+                        case 1:
+                            return "Salt";
+                        case 2:
+                            return "Sugar";
+
+                    }
+                });
+
+        }
+    </script>
+</body>
+
+</html>

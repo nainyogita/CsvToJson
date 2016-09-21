@@ -1,109 +1,121 @@
-var fs= require("fs");
+var fs = require("fs");
 const readline = require('readline');
 
 var rl = readline.createInterface({
-  input: require('fs').createReadStream('FoodFacts.csv')
+    input: require('fs').createReadStream('FoodFacts.csv')
 });
 
-var h=0;
-var result=[];
-var arr=[];
-var obj={};
+var h = 0;
+var result = [];
+var arr = [];
+var obj = {};
 var len;
 var headers;
 var countryIndex;
 var saltIndex;
 var sugarIndex;
-var countries = ["Netherlands","Canada","Australia","France","Spain","South Africa","Germany","United Kingdom","United States"];
-//------- Read line by line ----------
-rl.on('line',function(line){
+var countries = ["Netherlands", "Canada", "Australia", "France", "Spain", "South Africa", "Germany", "United Kingdom", "United States"];
 
-  var obj1={};
+var saltAvg = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+var sugarAvg = [0, 0, 0, 0, 0, 0, 0, 0, 0];
 
-//------- Extract header ----------
-  if(h==0){
-    //console.log('Line from file:',line);
-    headers=line.split(",")
-    len=headers.length;
-    countryIndex = headers.indexOf('countries_en');
-    saltIndex = headers.indexOf('salt_100g');
-    sugarIndex=headers.indexOf('sugars_100g');
+//------- Read line by line ---------
+rl.on('line', function(line) {
 
-    // console.log(len);
-    // console.log(countryIndex);
-    // console.log(saltIndex);
-    // console.log(sugarIndex);
-    // //console.log(headers);
+    var obj1 = {};
 
-  }
+    //------- Extract header ----------
+    if (h == 0) {
 
-//--------- Rest of the file ---------------------
-  else {
+        headers = line.split(",")
+        len = headers.length;
+        countryIndex = headers.indexOf('countries_en');
+        saltIndex = headers.indexOf('salt_100g');
+        sugarIndex = headers.indexOf('sugars_100g');
+    }
 
-//--------- Regex to find string with " " --------
-     var regex= /".*?"/g ;
+    //--------- Rest of the file ---------------------
+    else {
 
+        //--------- Regex to find string with " " --------
+        var regex = /".*?"/g;
+        var oldex;
+        while (oldex = regex.exec(line)) {
+            var newex = oldex[0].replace(/,/g, "~");
+            line = line.replace(oldex, newex);
+        }
+        //--- Split the string by ','
+        var currline = line.split(",");
+        var carr = currline[countryIndex] + '';
+        var countryArr = carr.split("~");
 
-     var oldex;
-     while(oldex=regex.exec(line)){
-     var newex = oldex[0].replace(/,/g,"~");
-    // console.log(newex);
-     line=line.replace(oldex,newex);
-    // console.log(line);
-   }
+        for (var k = 0; k < countryArr.length; k++) {
 
-   var currline = line.split(",");
+            countryArr[k] = countryArr[k].replace("\"", '');
 
-   for(var i=0;i<len;i++){
-   if(currline[i].trim()==''){
-     currline[i]=0;
-   }
- }
+            if (countries.includes(countryArr[k])) {
+                // ------- JSON object creation -----------
 
+                if (obj[countryArr[k]] == undefined) {
 
-var carr = currline[countryIndex] + '';
-//console.log(typeof carr);
-var countryArr = carr.split("~");
+                    if (checkNan(currline[saltIndex]))
+                        obj1[headers[saltIndex]] = parseFloat(currline[saltIndex]);
+                    else
+                        obj1[headers[saltIndex]] = 0;
 
 
-for(var k=0;k<countryArr.length;k++){
+                    if (checkNan(currline[sugarIndex]))
+                        obj1[headers[sugarIndex]] = parseFloat(currline[sugarIndex]);
+                    else
+                        obj1[headers[sugarIndex]] = 0;
 
-if(countries.includes(countryArr[k])){
-// ------- JSON object creation -----------
-//console.log(currline[countryIndex]);
- obj1[headers[saltIndex]]=parseFloat(currline[saltIndex]);
- obj1[headers[sugarIndex]]=parseFloat(currline[sugarIndex]);
+                    obj[countryArr[k]] = obj1;
 
-  if(obj[countryArr[k]] == undefined){
-      // console.log(countryArr[k])
-      obj[countryArr[k]] = obj1;
-    //console.log('Country doesnt exit');
-  }
-  else{
-  // console.log('already exist ');
-   obj[countryArr[k]][headers[sugarIndex]] += parseFloat(currline[sugarIndex]);
-   obj[countryArr[k]][headers[saltIndex]] += parseFloat(currline[saltIndex]);
+                } else {
+                    if (checkNan(currline[sugarIndex])) {
+                        obj[countryArr[k]][headers[sugarIndex]] += parseFloat(currline[sugarIndex]);
+                    }
+                    if (checkNan(currline[saltIndex])) {
+                        obj[countryArr[k]][headers[saltIndex]] += parseFloat(currline[saltIndex]);
+                    }
 
-  }
-  // console.log(obj);
+                }
 
-}
-}
-}
+                var counterLoc = countries.indexOf(countryArr[k]);
+
+                if (checkNan(currline[saltIndex])) {
+                    saltAvg[counterLoc]++;
+                }
+                if (checkNan(currline[sugarIndex])) {
+                    sugarAvg[counterLoc]++;
+                }
+            }
+        }
+    }
     h++;
 
 });
 
+function checkNan(element) {
+    if (element.trim() == "")
+        return false;
+    else
+        return true;
+}
+
+function average(saltAvg, sugarAvg, obj) {
+
+    for (var key in obj) {
+        var index = countries.indexOf(key);
+        obj[key]['salt_100g'] /= saltAvg[index];
+        obj[key]['sugars_100g'] /= sugarAvg[index];
+
+    }
+}
 
 // --------- Write JSON to File -------
-rl.on('close',function(){
-	fs.writeFileSync('result1.json',JSON.stringify(obj),'utf-8');
+rl.on('close', function() {
+    console.log(saltAvg + "\n" + sugarAvg);
+    average(saltAvg, sugarAvg, obj);
+    fs.writeFileSync('result1.json', JSON.stringify(obj), 'utf-8');
 });
-
-// // --------Read File----------
-// fs.readFile('FoodFacts.csv',function(err,data){
-//   if(err){
-//     return console.error(err);
-//   }
-//   //console.log('Asynchronous read' + data.toString());
-// });

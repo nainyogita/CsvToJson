@@ -1,23 +1,29 @@
-var fs= require("fs");
+var fs = require("fs");
 const readline = require('readline');
 
 var rl = readline.createInterface({
-  input: require('fs').createReadStream('FoodFacts.csv')
+    input: require('fs').createReadStream('FoodFacts.csv')
 });
 
-var h=0;
-var result=[];
-var arr=[];
-var necount =0;
-
+var h = 0;
+var result = [];
+var arr = [];
+var necount = 0;
 
 
 //--------  Zones Object Formation ----------
-var obj={'North Europe':{},'Central Europe':{},'South Europe':{}};
-var ne = ['United Kingdom', 'Denmark', 'Sweden','Norway'];
-var ce=['France', 'Belgium', 'Germany', 'Switzerland','Netherlands'];
-var se=['Portugal', 'Greece', 'Italy', 'Spain', 'Croatia','Albania'];
+var obj = {
+    'North Europe': {},
+    'Central Europe': {},
+    'South Europe': {}
+};
+var ne = ['United Kingdom', 'Denmark', 'Sweden', 'Norway'];
+var ce = ['France', 'Belgium', 'Germany', 'Switzerland', 'Netherlands'];
+var se = ['Portugal', 'Greece', 'Italy', 'Spain', 'Croatia', 'Albania'];
 
+var fatAvg = [0, 0, 0];
+var proteinAvg = [0, 0, 0];
+var carbAvg = [0, 0, 0];
 
 var len;
 var headers;
@@ -27,107 +33,130 @@ var proteinIndex;
 var carbIndex;
 
 //------- Read line by line ----------
-rl.on('line',function(line){
+rl.on('line', function(line) {
 
 
-//------- Extract header ----------
-  if(h==0){
-    //console.log('Line from file:',line);
-    headers=line.split(",")
-    len=headers.length;
-    countryIndex = headers.indexOf('countries_en');
-    fatIndex = headers.indexOf('fat_100g');
-    proteinIndex=headers.indexOf('proteins_100g');
-    carbIndex=headers.indexOf('carbohydrates_100g');
+    //------- Extract header ----------
+    if (h == 0) {
 
-    // console.log(len);
-    // console.log(countryIndex);
-    // console.log(fatIndex);
-    // console.log(proteinIndex);
-    // console.log(carbIndex);
-    //console.log(headers);
-console.log(headers[fatIndex]);
+        headers = line.split(",")
+        len = headers.length;
+        countryIndex = headers.indexOf('countries_en');
+        fatIndex = headers.indexOf('fat_100g');
+        proteinIndex = headers.indexOf('proteins_100g');
+        carbIndex = headers.indexOf('carbohydrates_100g');
 
+        for (var key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                obj[key][headers[fatIndex]] = 0;
+                obj[key][headers[proteinIndex]] = 0;
+                obj[key][headers[carbIndex]] = 0;
+            }
+        }
 
-    for(var key in obj){
-      if(obj.hasOwnProperty(key)){
-        obj[key][headers[fatIndex]] = 0;
-        obj[key][headers[proteinIndex]] = 0;
-        obj[key][headers[carbIndex]] = 0;
-      }
     }
 
-  }
-//console.log(JSON.stringify(obj));
-//--------- Rest of the file ---------------------
-else  {
+    //--------- Rest of the file ---------------------
+    else {
 
-//--------- Regex to find string with " " --------
-     var regex= /".*?"/g ;
+        //--------- Regex to find string with " " --------
+        var regex = /".*?"/g;
 
 
-     var oldex;
-     while(oldex=regex.exec(line)){
-     var newex = oldex[0].replace(/,/g,"~");
-    // console.log(newex);
-     line=line.replace(oldex,newex);
-    // console.log(line);
-   }
+        var oldex;
+        while (oldex = regex.exec(line)) {
+            var newex = oldex[0].replace(/,/g, "~");
+            line = line.replace(oldex, newex);
 
-   var currline = line.split(",");
+        }
 
-   for(var i=0;i<len;i++){
-   if(currline[i].trim()==''){
-     currline[i]=0;
-   }
- }
+        var currline = line.split(",");
+
+        // ------- JSON object creation -----------
+        var carr = currline[countryIndex] + '';
+        //console.log(typeof carr);
+        var countryArr = carr.split("~");
 
 
+        for (var k = 0; k < countryArr.length; k++) {
+            countryArr[k] = countryArr[k].replace("\"", '');
+            var counterLoc = -1;
+            if (ne.includes(countryArr[k])) {
+                if (checkNan(currline[fatIndex]))
+                    obj["North Europe"][headers[fatIndex]] += parseFloat(currline[fatIndex]);
+                if (checkNan(currline[proteinIndex]))
+                    obj["North Europe"][headers[proteinIndex]] += parseFloat(currline[proteinIndex]);
+                if (checkNan(currline[carbIndex]))
+                    obj["North Europe"][headers[carbIndex]] += parseFloat(currline[carbIndex]);
 
+                counterLoc = 0;
+            }
 
-// ------- JSON object creation -----------
+            if (ce.includes(countryArr[k])) {
+                if (checkNan(currline[fatIndex]))
+                    obj["Central Europe"][headers[fatIndex]] += parseFloat(currline[fatIndex]);
+                if (checkNan(currline[proteinIndex]))
+                    obj["Central Europe"][headers[proteinIndex]] += parseFloat(currline[proteinIndex]);
+                if (checkNan(currline[carbIndex]))
+                    obj["Central Europe"][headers[carbIndex]] += parseFloat(currline[carbIndex]);
 
+                counterLoc = 1;
+            }
 
+            if (se.includes(countryArr[k])) {
+                if (checkNan(currline[fatIndex]))
+                    obj["South Europe"][headers[fatIndex]] += parseFloat(currline[fatIndex]);
+                if (checkNan(currline[proteinIndex]))
+                    obj["South Europe"][headers[proteinIndex]] += parseFloat(currline[proteinIndex]);
+                if (checkNan(currline[carbIndex]))
+                    obj["South Europe"][headers[carbIndex]] += parseFloat(currline[carbIndex]);
+                counterLoc = 2;
+            }
 
-var carr = currline[countryIndex] + '';
-//console.log(typeof carr);
-var countryArr = carr.split("~");
+            if (counterLoc != -1) {
 
+                if (checkNan(currline[fatIndex]))
+                    fatAvg[counterLoc]++;
 
-for(var k=0;k<countryArr.length;k++){
+                if (checkNan(currline[proteinIndex]))
+                    proteinAvg[counterLoc]++;
 
-if(ne.includes(countryArr[k])){
+                if (checkNan(currline[carbIndex]))
+                    carbAvg[counterLoc]++;
 
-   obj["North Europe"][headers[fatIndex]]+= parseFloat(currline[fatIndex]);
-   obj["North Europe"][headers[proteinIndex]]+= parseFloat(currline[proteinIndex]);
-   obj["North Europe"][headers[carbIndex]]+= parseFloat(currline[carbIndex]);
-
-  //  console.log(obj);
-
-}
-
-if(ce.includes(countryArr[k])){
-   obj["Central Europe"][headers[fatIndex]]+= parseFloat(currline[fatIndex]);
-   obj["Central Europe"][headers[proteinIndex]]+= parseFloat(currline[proteinIndex]);
-   obj["Central Europe"][headers[carbIndex]]+= parseFloat(currline[carbIndex]);
-
-//console.log(obj);
-}
-
-if(se.includes(countryArr[k])){
-   obj["South Europe"][headers[fatIndex]]+= parseFloat(currline[fatIndex]);
-   obj["South Europe"][headers[proteinIndex]]+= parseFloat(currline[proteinIndex]);
-   obj["South Europe"][headers[carbIndex]]+= parseFloat(currline[carbIndex]);
-
-}
-
-  // console.log(obj);
-  }
-}
+            }
+        }
+    }
     h++;
 });
 
+
+function checkNan(element) {
+    if (element.trim() == "")
+        return false;
+    else
+        return true;
+}
+
+
 // --------- Write JSON to File -------
-rl.on('close',function(){
-	fs.writeFileSync('result2.json',JSON.stringify(obj),'utf-8');
+rl.on('close', function() {
+    console.log(fatAvg + "\n" + proteinAvg + "\n" + carbAvg);
+    average(fatAvg, proteinAvg, carbAvg, obj);
+    fs.writeFileSync('result2.json', JSON.stringify(obj), 'utf-8');
 });
+
+
+function average(fatAvg, proteinAvg, carbAvg, obj) {
+
+    var zones = Object.keys(obj);
+
+    for (var key in obj) {
+        var index = zones.indexOf(key);
+
+        obj[key]['fat_100g'] /= fatAvg[index];
+        obj[key]['proteins_100g'] /= proteinAvg[index];
+        obj[key]['carbohydrates_100g'] /= carbAvg[index];
+
+    }
+}
