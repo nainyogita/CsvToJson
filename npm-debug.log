@@ -1,0 +1,71 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/bin/nodejs',
+1 verbose cli   '/usr/bin/npm',
+1 verbose cli   'install',
+1 verbose cli   'node-static',
+1 verbose cli   '-g' ]
+2 info using npm@3.10.3
+3 info using node@v6.6.0
+4 silly loadCurrentTree Starting
+5 silly install loadCurrentTree
+6 silly install readGlobalPackageData
+7 silly fetchPackageMetaData node-static
+8 silly fetchNamedPackageData node-static
+9 silly mapToRegistry name node-static
+10 silly mapToRegistry using default registry
+11 silly mapToRegistry registry https://registry.npmjs.org/
+12 silly mapToRegistry data Result {
+12 silly mapToRegistry   raw: 'node-static',
+12 silly mapToRegistry   scope: null,
+12 silly mapToRegistry   escapedName: 'node-static',
+12 silly mapToRegistry   name: 'node-static',
+12 silly mapToRegistry   rawSpec: '',
+12 silly mapToRegistry   spec: 'latest',
+12 silly mapToRegistry   type: 'tag' }
+13 silly mapToRegistry uri https://registry.npmjs.org/node-static
+14 verbose request uri https://registry.npmjs.org/node-static
+15 verbose request no auth needed
+16 info attempt registry request try #1 at 10:16:49 AM
+17 verbose request id e571f9f73315db3d
+18 http request GET https://registry.npmjs.org/node-static
+19 info retry will retry, error on last attempt: Error: getaddrinfo EAI_AGAIN registry.npmjs.org:443
+20 info attempt registry request try #2 at 10:17:19 AM
+21 http request GET https://registry.npmjs.org/node-static
+22 info retry will retry, error on last attempt: Error: getaddrinfo EAI_AGAIN registry.npmjs.org:443
+23 info attempt registry request try #3 at 10:18:39 AM
+24 http request GET https://registry.npmjs.org/node-static
+25 silly fetchPackageMetaData Error: getaddrinfo EAI_AGAIN registry.npmjs.org:443
+25 silly fetchPackageMetaData     at Object.exports._errnoException (util.js:1036:11)
+25 silly fetchPackageMetaData     at errnoException (dns.js:33:15)
+25 silly fetchPackageMetaData     at GetAddrInfoReqWrap.onlookup [as oncomplete] (dns.js:76:26)
+25 silly fetchPackageMetaData  error for node-static { Error: getaddrinfo EAI_AGAIN registry.npmjs.org:443
+25 silly fetchPackageMetaData     at Object.exports._errnoException (util.js:1036:11)
+25 silly fetchPackageMetaData     at errnoException (dns.js:33:15)
+25 silly fetchPackageMetaData     at GetAddrInfoReqWrap.onlookup [as oncomplete] (dns.js:76:26)
+25 silly fetchPackageMetaData   code: 'EAI_AGAIN',
+25 silly fetchPackageMetaData   errno: 'EAI_AGAIN',
+25 silly fetchPackageMetaData   syscall: 'getaddrinfo',
+25 silly fetchPackageMetaData   hostname: 'registry.npmjs.org',
+25 silly fetchPackageMetaData   host: 'registry.npmjs.org',
+25 silly fetchPackageMetaData   port: 443 }
+26 silly rollbackFailedOptional Starting
+27 silly rollbackFailedOptional Finishing
+28 silly runTopLevelLifecycles Starting
+29 silly runTopLevelLifecycles Finishing
+30 silly install printInstalled
+31 verbose stack Error: getaddrinfo EAI_AGAIN registry.npmjs.org:443
+31 verbose stack     at Object.exports._errnoException (util.js:1036:11)
+31 verbose stack     at errnoException (dns.js:33:15)
+31 verbose stack     at GetAddrInfoReqWrap.onlookup [as oncomplete] (dns.js:76:26)
+32 verbose cwd /vagrant/StackRouteRepo/csvtojson
+33 error Linux 4.4.0-21-generic
+34 error argv "/usr/bin/nodejs" "/usr/bin/npm" "install" "node-static" "-g"
+35 error node v6.6.0
+36 error npm  v3.10.3
+37 error code EAI_AGAIN
+38 error errno EAI_AGAIN
+39 error syscall getaddrinfo
+40 error getaddrinfo EAI_AGAIN registry.npmjs.org:443
+41 error If you need help, you may report this error at:
+41 error     <https://github.com/npm/npm/issues>
+42 verbose exit [ 1, true ]
