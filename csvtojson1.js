@@ -44,11 +44,13 @@ rl.on('line', function(line) {
             var newex = oldex[0].replace(/,/g, "~");
             line = line.replace(oldex, newex);
         }
+
         //--- Split the string by ','
         var currline = line.split(",");
         var carr = currline[countryIndex] + '';
         var countryArr = carr.split("~");
 
+        //Loop through country column which consits more than one country
         for (var k = 0; k < countryArr.length; k++) {
 
             countryArr[k] = countryArr[k].replace("\"", '');
@@ -89,6 +91,7 @@ rl.on('line', function(line) {
 
 });
 
+//create innerobject for key("country") in json
 function createInnerObj(obj1, currline, index) {
     if (checkNan(currline[index]))
         obj1[headers[index]] = parseFloat(currline[index]);
@@ -96,6 +99,7 @@ function createInnerObj(obj1, currline, index) {
         obj1[headers[index]] = 0;
 }
 
+//Check if Column Value is empty
 function checkNan(element) {
     if (element.trim() == "")
         return false;
@@ -103,6 +107,7 @@ function checkNan(element) {
         return true;
 }
 
+//Calculate average for repeating countries
 function average(saltAvg, sugarAvg, obj) {
 
     for (var key in obj) {

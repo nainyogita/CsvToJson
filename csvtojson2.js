@@ -17,6 +17,8 @@ var obj = {
     'Central Europe': {},
     'South Europe': {}
 };
+
+//Countries listed in zones
 var ne = ['United Kingdom', 'Denmark', 'Sweden', 'Norway'];
 var ce = ['France', 'Belgium', 'Germany', 'Switzerland', 'Netherlands'];
 var se = ['Portugal', 'Greece', 'Italy', 'Spain', 'Croatia', 'Albania'];
@@ -77,10 +79,13 @@ rl.on('line', function(line) {
         //console.log(typeof carr);
         var countryArr = carr.split("~");
 
-
+        //Loop through country column which consits more than one country
         for (var k = 0; k < countryArr.length; k++) {
+
             countryArr[k] = countryArr[k].replace("\"", '');
             var counterLoc = -1;
+
+            //Check if country is in northeurope
             if (ne.includes(countryArr[k])) {
                 if (checkNan(currline[fatIndex]))
                     obj["North Europe"][headers[fatIndex]] += parseFloat(currline[fatIndex]);
@@ -92,6 +97,7 @@ rl.on('line', function(line) {
                 counterLoc = 0;
             }
 
+            //Check if country is in central europe
             if (ce.includes(countryArr[k])) {
                 if (checkNan(currline[fatIndex]))
                     obj["Central Europe"][headers[fatIndex]] += parseFloat(currline[fatIndex]);
@@ -103,6 +109,7 @@ rl.on('line', function(line) {
                 counterLoc = 1;
             }
 
+            //Check if country is in south europe
             if (se.includes(countryArr[k])) {
                 if (checkNan(currline[fatIndex]))
                     obj["South Europe"][headers[fatIndex]] += parseFloat(currline[fatIndex]);
@@ -130,7 +137,7 @@ rl.on('line', function(line) {
     h++;
 });
 
-
+//Check if value is empty
 function checkNan(element) {
     if (element.trim() == "")
         return false;
@@ -138,15 +145,7 @@ function checkNan(element) {
         return true;
 }
 
-
-// --------- Write JSON to File -------
-rl.on('close', function() {
-    console.log(fatAvg + "\n" + proteinAvg + "\n" + carbAvg);
-    average(fatAvg, proteinAvg, carbAvg, obj);
-    fs.writeFileSync('result2.json', JSON.stringify(obj), 'utf-8');
-});
-
-
+//Calc average for zones
 function average(fatAvg, proteinAvg, carbAvg, obj) {
 
     var zones = Object.keys(obj);
@@ -160,3 +159,10 @@ function average(fatAvg, proteinAvg, carbAvg, obj) {
 
     }
 }
+
+// --------- Write JSON to File -------
+rl.on('close', function() {
+    console.log(fatAvg + "\n" + proteinAvg + "\n" + carbAvg);
+    average(fatAvg, proteinAvg, carbAvg, obj);
+    fs.writeFileSync('result2.json', JSON.stringify(obj), 'utf-8');
+});
