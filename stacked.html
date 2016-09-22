@@ -104,7 +104,7 @@
                 })])
                 .range([height, 0]);
 
-            var colors = ["#d25c4d", "#f2b447"];
+            var colors = ["#FF69B4", "#87CEFA"];
 
             var yAxis = d3.svg.axis()
                 .scale(y)
@@ -158,18 +158,24 @@
                 .attr("height", function(d) {
                     return y(d.y0) - y(d.y0 + d.y);
                 })
+                .attr("stroke", "pink")
+                .attr("stroke-width", 0.2)
                 .attr("width", x.rangeBand())
                 .on("mouseover", function() {
                     tooltip.style("display", null);
+                    d3.select(this).attr("stroke", "black").attr("stroke-width", 3.0);
                 })
                 .on("mouseout", function() {
                     tooltip.style("display", "none");
+                    d3.select(this).attr("stroke", "black").attr("stroke-width", 0.2);
+
                 })
                 .on("mousemove", function(d) {
                     var xPosition = d3.mouse(this)[0] - 15;
                     var yPosition = d3.mouse(this)[1] - 25;
                     tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
-                    tooltip.select("text").text((d.y).toFixed(2));
+                    tooltip.select("text").text((d.y).toFixed(2) + "g");
+
                 });
 
 
@@ -225,7 +231,7 @@
                 .attr("font-size", "12px")
                 .attr("font-weight", "bold");
 
-        }); //d3 jsonends here
+        });
     </script>
 
 </body>

@@ -12,8 +12,23 @@
 
         .line {
             fill: none;
-            stroke: steelblue;
             stroke-width: 1.5px;
+        }
+
+        .toolcolor {
+            fill: white;
+        }
+
+        div.tooltip {
+            position: absolute;
+            text-align: center;
+            width: 60px;
+            height: 28px;
+            padding: 2px;
+            font: 12px sans-serif;
+            background: lightsteelblue;
+            border: 0px;
+            border-radius: 8px;
         }
     </style>
 
@@ -28,18 +43,18 @@
         var margin = {
                 top: 20,
                 right: 160,
-                bottom: 35,
+                bottom: 50,
                 left: 80
             },
             width = 960 - margin.left - margin.right,
-            height = 500 - margin.top - margin.bottom;
+            height = 550 - margin.top - margin.bottom;
 
 
 
 
         var newData = [];
-        var colors = ["#d25c4d", "#f2b447", ];
 
+        //Get data from JSON file
         d3.json("result2.json", function(error, data) {
 
             var keys = Object.keys(data);
@@ -74,6 +89,7 @@
             var color = d3.scale.ordinal().range(colors);
             console.log(newData);
 
+            //Scale the range of data
             var x = d3.scale.ordinal()
                 .domain(newData.map(function(d) {
                     return d.zone;
@@ -88,7 +104,8 @@
             })]);
 
 
-            var priceline = d3.svg.line()
+            //Draw the line for amount of products
+            var amountline = d3.svg.line()
                 .x(function(d) {
                     return x(d.zone);
                 })
@@ -96,6 +113,13 @@
                     return y(d.amount);
                 });
 
+            //Div for tooltips
+            var div = d3.select("body")
+                .append("div") // declare the tooltip div
+                .attr("class", "tooltip") // apply the 'tooltip' class
+                .style("opacity", 0);
+
+            //Append svg to body
             var svg = d3.select("body")
                 .append("svg")
                 .attr("width", width + margin.left + margin.right)
@@ -133,9 +157,36 @@
                     .style("stroke", function() {
                         return d.color = color(d.key);
                     })
-                    .attr("d", priceline(d.values));
+                    .attr("d", amountline(d.values));
 
             });
+
+            svg.selectAll("g.dot")
+                .data(newData)
+                .enter().append("circle")
+                .attr("r", 4)
+                .attr("cx", function(d) {
+                    return x(d.zone);
+                })
+                .attr("cy", function(d) {
+                    return y(d.amount);
+                })
+                .on("mouseover", function() {
+                    tooltip.style("display", null);
+
+                })
+                .on("mouseout", function() {
+                    tooltip.style("display", "none");
+                    d3.select(this).attr("r", "4");
+                })
+                .on("mousemove", function(d) {
+                    var xPosition = d3.mouse(this)[0] - 15;
+                    var yPosition = d3.mouse(this)[1] - 25;
+                    tooltip.attr("transform", "translate(" + xPosition + "," + yPosition + ")");
+                    tooltip.select("text").html((d.amount).toFixed(2) + "g");
+
+                    d3.select(this).attr("r", "6");
+                });
 
             // Add the X Axis
             svg.append("g")
@@ -149,20 +200,19 @@
                 .call(yAxis);
 
             svg.append("text") // text label for the x axis
-                .attr("x", 400)
-                .attr("y", 480)
+                .attr("x", 500)
+                .attr("y", 520)
                 .style("text-anchor", "middle")
-
-            .style("stroke", "blue")
-                .text("Regions --");
+                .style("stroke", "hotpink")
+                .text("REGIONS ------------->");
 
             svg.append("text") // text label for the y axis
-                .attr("x", 400)
-                .attr("y", 460)
+                .attr("x", -200)
+                .attr("y", -40)
                 .style("text-anchor", "middle")
                 .attr("transform", "rotate(-90)")
-                .style("stroke", "blue")
-                .text(" Average Consumption --");
+                .style("stroke", "hotpink")
+                .text(" AVERAGE CONSUMPTION -------->");
 
 
             var legend = svg.selectAll(".legend")
@@ -189,15 +239,32 @@
                 .text(function(d, i) {
                     switch (i) {
                         case 0:
-                            return "Sugar";
+                            return "Carbohydrates";
                         case 1:
-                            return "Salt";
+                            return "Protein";
                         case 2:
-                            return "Sugar";
+                            return "Fat";
 
                     }
                 });
 
+            var tooltip = svg.append("g")
+                .attr("class", "tooltip")
+                .style("display", "none");
+
+            tooltip.append("rect")
+                .attr("width", 40)
+                .attr("height", 20)
+                .attr("fill", "black")
+                .style("opacity", 0.7);
+
+            tooltip.append("text")
+                .attr("x", 15)
+                .attr("dy", "1.2em")
+                .style("text-anchor", "middle")
+                .attr("class", "toolcolor")
+                .attr("font-size", "12px")
+                .attr("font-weight", "bold");
         }
     </script>
 </body>

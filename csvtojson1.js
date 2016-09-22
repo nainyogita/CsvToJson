@@ -58,20 +58,13 @@ rl.on('line', function(line) {
 
                 if (obj[countryArr[k]] == undefined) {
 
-                    if (checkNan(currline[saltIndex]))
-                        obj1[headers[saltIndex]] = parseFloat(currline[saltIndex]);
-                    else
-                        obj1[headers[saltIndex]] = 0;
-
-
-                    if (checkNan(currline[sugarIndex]))
-                        obj1[headers[sugarIndex]] = parseFloat(currline[sugarIndex]);
-                    else
-                        obj1[headers[sugarIndex]] = 0;
+                    createInnerObj(obj1, currline, saltIndex);
+                    createInnerObj(obj1, currline, sugarIndex);
 
                     obj[countryArr[k]] = obj1;
 
                 } else {
+
                     if (checkNan(currline[sugarIndex])) {
                         obj[countryArr[k]][headers[sugarIndex]] += parseFloat(currline[sugarIndex]);
                     }
@@ -95,6 +88,13 @@ rl.on('line', function(line) {
     h++;
 
 });
+
+function createInnerObj(obj1, currline, index) {
+    if (checkNan(currline[index]))
+        obj1[headers[index]] = parseFloat(currline[index]);
+    else
+        obj1[headers[index]] = 0;
+}
 
 function checkNan(element) {
     if (element.trim() == "")
